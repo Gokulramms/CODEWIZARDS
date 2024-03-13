@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Medical Speech to Text</title>
+<style>
+/* Global styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    margin: 0;
+    padding: 0;
+    transition: background-color 1s ease;
+}
+
+h1 {
+    font-size: 24px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+p {
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+button {
+    font-size: 16px;
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-right: 10px;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+/* Container styles */
+#container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    margin-top: 50px;
+}
+
+/* Output container styles */
+#output-container {
+    padding: 20px;
+    border: 1px solid #ccc;
+    min-height: 200px;
+    max-height: 400px;
+    overflow-y: auto;
+    margin-top: 20px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+}
+
+/* Output text styles */
+#output {
+    margin: 0;
+    padding: 0;
+    font-size: 16px;
+}
+
+/* Clear button styles */
+#clearBtn {
+    margin-top: 20px;
+    display: block;
+    margin-left: auto;
+}
+
+/* Media queries for responsiveness */
+@media (max-width: 600px) {
+    #container {
+        padding: 10px;
+    }
+    h1 {
+        font-size: 20px;
+    }
+    p {
+        font-size: 14px;
+    }
+    button {
+        font-size: 14px;
+        padding: 8px 16px;
+    }
+    #output-container {
+        padding: 10px;
+        font-size: 14px;
+    }
+}
+</style>
+</head>
+<body>
+<div id="container">
+    <h1>Medical Speech to Text</h1>
+    <p>Click the "Start Recording" button and speak. Your speech will be transcribed and analyzed below.</p>
+    <button id="startBtn">Start Recording</button>
+    <button id="clearBtn">Clear Text</button>
+    <div id="output-container">
+        <div id="output"></div>
+    </div>
+</div>
+
+<script>
+    const outputContainer = document.getElementById('output-container');
+    const output = document.getElementById('output');
+    const startBtn = document.getElementById('startBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    let recognition = null;
+
+    // Function to change background color dynamically
+    function changeBackgroundColor() {
+        const colors = ['#F08080', '#90EE90', '#ADD8E6', '#FFD700', '#FFA07A', '#98FB98'];
+        const randomIndex = Math.floor(Math.random() * colors.length);
+        document.body.style.backgroundColor = colors[randomIndex];
+    }
+
+    setInterval(changeBackgroundColor, 1200); // Change every 5 seconds
+
+    function startRecognition() {
+        recognition = new webkitSpeechRecognition() || new SpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.lang = 'en-US'; // Change the language code as needed
+
+        recognition.onresult = function(event) {
+            let interimTranscript = '';
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                if (event.results[i].isFinal) {
+                    interimTranscript += event.results[i][0].transcript + ' ';
+                }
+            }
+            if (interimTranscript !== '') {
+                output.innerHTML += '<p><strong>Transcribed Text:</strong> ' + interimTranscript + '</p>';
+                fetch('http://localhost:8000', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({transcribedText: interimTranscript})
+                })
+                .then(response => response.json())
+                .then(data => {
+                    output.innerHTML += '<p><strong>Generated Text:</strong> ' + data.generatedText + '</p>';
+                    outputContainer.scrollTop = outputContainer.scrollHeight;
+                })
+                .catch(error => console.error('Error:', error));
+            }
+        };
+
+        recognition.onstart = function() {
+            startBtn.textContent = 'Stop Recording';
+        };
+
+        recognition.onend = function() {
+            startBtn.textContent = 'Start Recording';
+        };
+
+        recognition.start();
+    }
+
+    function stopRecognition() {
+        if (recognition) {
+            recognition.onend = null; // Prevent restarting
+            recognition.stop();
+        }
+    }
+
+    function clearText() {
+        output.innerHTML = '';
+    }
+
+    startBtn.addEventListener('click', function() {
+        if (recognition && recognition.running) {
+            stopRecognition();
+        } else {
+            output.innerHTML = '';
+            startRecognition();
+        }
+    });
+
+    clearBtn.addEventListener('click', clearText);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: url('https://www.wallpapertip.com/wmimgs/99-998859_background-image-for-hospital.jpg') no-repeat center center/cover;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Container Styles */
+        .container {
+            background-color: rgba(0, 0, 0, 0.75);
+            border-radius: 8px;
+            padding: 30px;
+            width: 300px;
+            text-align: center;
+        }
+
+        /* Heading Styles */
+        h2 {
+            margin-bottom: 30px;
+            color: #ffffff;
+        }
+
+        /* Form Styles */
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Label Styles */
+        label {
+            color: #ffffff;
+            margin-bottom: 5px;
+            font-size: 14px;
+            text-align: left;
+        }
+
+        /* Input Styles */
+        input[type="text"],
+        input[type="password"] {
+            padding: 10px;
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #f5f5f5;
+            font-size: 14px;
+        }
+
+        /* Button Styles */
+        button {
+            padding: 12px;
+            background-color: #e50914;
+            border: none;
+            border-radius: 5px;
+            color: #ffffff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        /* Button Hover Effect */
+        button:hover {
+            background-color: #d30813;
+        }
+
+        /* Error Message Styles */
+        .error-message {
+            color: #ff3333;
+            margin-top: 10px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        /* Link Styles */
+        .login-link {
+            margin-top: 20px;
+            color: #ffffff;
+            font-size: 14px;
+        }
+
+        .login-link a {
+            color: #ffffff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Registration Form Container -->
+    <div class="container">
+        <h2>Register</h2>
+        <form action="/register" method="post" id="register-form">
+            <label for="newUsername">New Username:</label>
+            <input type="text" id="newUsername" name="newUsername" required>
+
+            <label for="newPassword">New Password:</label>
+            <input type="password" id="newPassword" name="newPassword" required>
+
+            <div class="error-message" id="register-error"></div>
+            <button type="button" onclick="validateRegistrationForm()">Register</button>
+        </form>
+        <div class="login-link">
+            <p>Already have an account? <a href="/">Login here</a>.</p>
+        </div>
+    </div>
+
+    <script>
+        function validateRegistrationForm() {
+            var newUsername = document.getElementById('newUsername').value;
+            var newPassword = document.getElementById('newPassword').value;
+
+            // Simulate server-side validation
+            if (newUsername === '' || newPassword === '') {
+                document.getElementById('register-error').innerHTML = 'Please enter both new username and password.';
+            } else {
+                document.getElementById('register-error').innerHTML = ''; // Clear error message
+                document.getElementById('register-form').submit(); // Submit form
+            }
+        }
+    </script>
+</body>
+</html>
